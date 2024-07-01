@@ -9,7 +9,6 @@ from docx import Document
 from io import BytesIO
 import zipfile
 from streamlit_option_menu import option_menu
-from streamlit_gsheets import GsheetsConnection
 from PIL import Image
 from io import BytesIO
 import plotly.graph_objects as go
@@ -21,43 +20,23 @@ import json
 # Nama spreadsheet
 spreadsheet_name = 'SITACSULAWESI'
 
-# Ambil konfigurasi dari file TOML
-config = st.experimental_get_config()
-gsheets_config = config["gsheets"]
-
 # Fungsi untuk menghubungkan ke Google Sheets
-def connect_to_google_sheets(spreadsheet_name, sheet_name):
-    scope = [
-        'https://spreadsheets.google.com/feeds',
-        'https://www.googleapis.com/auth/drive'
-    ]
+def connect_to_google_sheets(spreadsheet_name, sheet_name=None):
+    scope = ['https://spreadsheets.google.com/feeds',
+             'https://www.googleapis.com/auth/drive']
 
-    # Load credentials from TOML configuration
-    creds_dict = gsheets_config  # Already loaded from TOML
-
-    # Verify the credentials dictionary (optional, as TOML should be correctly formatted)
-    required_keys = [
-        "type", "project_id", "private_key_id", "private_key", "client_email",
-        "client_id", "auth_uri", "token_uri", "auth_provider_x509_cert_url",
-        "client_x509_cert_url"
-    ]
-    for key in required_keys:
-        if key not in creds_dict:
-            raise ValueError(f"Key '{key}' is missing from the credentials TOML")
-
-    creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+    # Load credentials from secrets
+    service_account_info = st.secrets["google_service_account"]
+    creds = ServiceAccountCredentials.from_json_keyfile_dict(service_account_info, scope)
     client = gspread.authorize(creds)
 
     # Buka spreadsheet berdasarkan nama
     spreadsheet = client.open(spreadsheet_name)
 
-    # Pilih worksheet berdasarkan nama
-    try:
-        worksheet = spreadsheet.worksheet(sheet_name)
-    except gspread.exceptions.WorksheetNotFound:
-        raise ValueError(f"Worksheet '{sheet_name}' tidak ditemukan di spreadsheet '{spreadsheet_name}'")
-
-    return worksheet
+    if sheet_name:
+        return spreadsheet.worksheet(sheet_name)
+    else:
+        return spreadsheet.sheet1
 #=====================================================================================================
 
 # Fungsi untuk menampilkan data berdasarkan Site ID Operator
