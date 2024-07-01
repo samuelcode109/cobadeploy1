@@ -8,6 +8,4 @@ python-docx
 streamlit-option-menu
 Pillow
 plotly
-requests 
-streamlit-gsheets
-
+requests
