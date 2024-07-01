@@ -9,3 +9,5 @@ streamlit-option-menu
 Pillow
 plotly
 requests 
+st-streamlit-gsheets
+
