@@ -880,42 +880,36 @@ def main():
         elif menu == "Generate Doc TSSR":
             st.title("Auto Generate Doc TSSR")
 
-            # Upload file Excel
             uploaded_file = st.file_uploader("Choose an Excel file", type="xlsx")
-            template_url = 'https://raw.githubusercontent.com/samuelcode109/cobadeploy1/main/tssr1.docx' # URL ke template Word Anda
-
+            template_url = 'https://raw.githubusercontent.com/samuelcode109/cobadeploy1/main/tssr1.docx'
 
             if uploaded_file is not None:
                 df = load_excel(uploaded_file)
                 st.write("Excel data:", df)
                 
                 if st.button("Create Word Documents"):
-                    # Inisialisasi buffer untuk ZIP file
-                    zip_buffer = BytesIO()
-                    
-                    with zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED) as zip_file:
-                        for idx, row in df.iterrows():
-                            # Buat dokumen Word untuk setiap baris
-                            doc = create_word_document(template_url, row)
-                            doc_buffer = BytesIO()
-                            doc.save(doc_buffer)
-                            doc_buffer.seek(0)
-                            
-                            # Nama file untuk setiap dokumen
-                            site_name = row['Site Name TBG']
-                            doc_name = f"site_{site_name}.docx"
-                            
-                            # Tambahkan dokumen ke ZIP file
-                            zip_file.writestr(doc_name, doc_buffer.getvalue())
-                    
-                    # Siapkan ZIP file untuk diunduh
-                    zip_buffer.seek(0)
-                    st.download_button(
-                        label="Download Word Documents",
-                        data=zip_buffer,
-                        file_name="documents.zip",
-                        mime="application/zip"
-                    )
+                    template = download_template(template_url)
+                    if template is not None:
+                        zip_buffer = BytesIO()
+                        with zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED) as zip_file:
+                            for idx, row in df.iterrows():
+                                doc = create_word_document(template, row)
+                                doc_buffer = BytesIO()
+                                doc.save(doc_buffer)
+                                doc_buffer.seek(0)
+                                
+                                site_name = row['Site Name TBG']
+                                doc_name = f"site_{site_name}.docx"
+                                
+                                zip_file.writestr(doc_name, doc_buffer.getvalue())
+                        
+                        zip_buffer.seek(0)
+                        st.download_button(
+                            label="Download Word Documents",
+                            data=zip_buffer,
+                            file_name="documents.zip",
+                            mime="application/zip"
+                        )
 
 if __name__ == "__main__":
     main()
