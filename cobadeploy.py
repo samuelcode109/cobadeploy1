@@ -426,6 +426,29 @@ def check_login(username,password):
     print("Checking login...")
     return username == "sitac" and password == "1234"
 
+# Fungsi untuk mengunduh template dari URL
+def download_template(url):
+    response = requests.get(url)
+    if response.status_code == 200:
+        return BytesIO(response.content)
+    else:
+        st.error(f"Failed to download template: {response.status_code}")
+        return None
+
+# Fungsi untuk membuat dokumen Word dari template dan data
+def create_word_document(template, data_row):
+    doc = Document(template)
+    # Gantikan placeholder dalam template dengan data dari data_row
+    for paragraph in doc.paragraphs:
+        for key, value in data_row.items():
+            if key in paragraph.text:
+                paragraph.text = paragraph.text.replace(f"{{{{ {key} }}}}", str(value))
+    return doc
+
+# Fungsi untuk memuat data dari file Excel
+def load_excel(file):
+    return pd.read_excel(file)
+
 # Main program
 def main():
     if 'login_state' not in st.session_state:
