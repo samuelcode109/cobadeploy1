@@ -882,7 +882,7 @@ def main():
 
             # Upload file Excel
             uploaded_file = st.file_uploader("Choose an Excel file", type="xlsx")
-            template_url = 'https://raw.githubusercontent.com/samuelcode109/Presitac-Improvement-sipandai/main/tssr1.docx' # URL ke template Word Anda
+            template_url = 'https://raw.githubusercontent.com/samuelcode109/cobadeploy1/main/tssr1.docx' # URL ke template Word Anda
 
 
             if uploaded_file is not None:
